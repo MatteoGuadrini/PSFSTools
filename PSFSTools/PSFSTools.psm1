@@ -119,14 +119,14 @@ function New-ProjectFolder () {
         $OwnerGroupName = (("$Name" + "_Owners").Replace(" ","_")).Trim()
         Write-Verbose -Message "Create a permission for Owner group: $OwnerGroupName"
         ## Name max 64 char
-        $WriterGroupName = if ($WriterGroupName.Length -gt 64) {$WriterGroupName.Substring(0,64)} else {$WriterGroupName}
+        $OwnerGroupName = if ($OwnerGroupName.Length -gt 64) {$OwnerGroupName.Substring(0,64)} else {$OwnerGroupName}
         $OwnerGroupSAM = ((("$Name" + ".owners").Replace(" ","_")).Trim()).ToLower()
         ## Samaccountname max 256
-        $WriterGroupSAM = if ($WriterGroupSAM.Length -gt 256) {$WriterGroupSAM.Substring(0,256)} else {$WriterGroupSAM}
+        $OwnerGroupSAM = if ($OwnerGroupSAM.Length -gt 256) {$OwnerGroupSAM.Substring(0,256)} else {$OwnerGroupSAM}
         New-ADGroup -Name $OwnerGroupName -SamAccountName $OwnerGroupSAM -GroupCategory Security -GroupScope Global -DisplayName "$Name Owners" -Path $OU -Description "Owners of project folder $FullPath on $($env:computername)"
         do {
             Start-Sleep -Seconds 2
-        } until (Get-ADGroup -Identity $WriterGroupSAM -ErrorAction SilentlyContinue)
+        } until (Get-ADGroup -Identity $OwnerGroupSAM -ErrorAction SilentlyContinue)
         Invoke-Command -Session $ActiveDirectorySession -ScriptBlock {repadmin /syncall /AdeP} | Out-Null
         # Assign permission to folder with Active Directory group
         $colRights = [System.Security.AccessControl.FileSystemRights]"FullControl"
@@ -163,14 +163,14 @@ function New-ProjectFolder () {
         $ReaderGroupName = (("$Name" + "_Readers").Replace(" ","_")).Trim()
         Write-Verbose -Message "Create a permission for Owner group: $ReaderGroupName"
         ## Name max 64 char
-        $WriterGroupName = if ($WriterGroupName.Length -gt 64) {$WriterGroupName.Substring(0,64)} else {$WriterGroupName}
+        $ReaderGroupName = if ($ReaderGroupName.Length -gt 64) {$ReaderGroupName.Substring(0,64)} else {$ReaderGroupName}
         $ReaderGroupSAM = ((("$Name" + ".readers").Replace(" ","_")).Trim()).ToLower()
         ## Samaccountname max 256
-        $WriterGroupSAM = if ($WriterGroupSAM.Length -gt 256) {$WriterGroupSAM.Substring(0,256)} else {$WriterGroupSAM}
+        $ReaderGroupSAM = if ($ReaderGroupSAM.Length -gt 256) {$ReaderGroupSAM.Substring(0,256)} else {$ReaderGroupSAM}
         New-ADGroup -Name $ReaderGroupName -SamAccountName $ReaderGroupSAM -GroupCategory Security -GroupScope Global -DisplayName "$Name Readers" -Path $OU -Description "Readers of project folder $FullPath on $($env:computername)"
         do {
             Start-Sleep -Seconds 2
-        } until (Get-ADGroup -Identity $WriterGroupSAM -ErrorAction SilentlyContinue)
+        } until (Get-ADGroup -Identity $ReaderGroupSAM -ErrorAction SilentlyContinue)
         Invoke-Command -Session $ActiveDirectorySession -ScriptBlock {repadmin /syncall /AdeP} | Out-Null
         # Assign permission to folder with Active Directory group
         $colRights = [System.Security.AccessControl.FileSystemRights]"Read,ReadAndExecute,ListDirectory"
@@ -200,7 +200,7 @@ function Remove-OlderThan () {
     .SYNOPSIS 
         Remove files and folders older than days
     .DESCRIPTION 
-        Remove files and folders older than days. In addition, also deletes empty folders.
+        Remove files and folders older than days
     .EXAMPLE
         Remove-OlderThan -Path C:\Temp -Days 15 -Recurse
     #>
