@@ -1,12 +1,13 @@
 New-Alias -Name "mkprj" -Value New-ProjectFolder -Option ReadOnly
 New-Alias -Name "rdold" -Value Remove-OlderThan -Option ReadOnly
 New-Alias -Name "bckar" -Value Backup-ArchiveFiles -Option ReadOnly
+New-Alias -Name "ntemp" -Value New-TemplateFileServer -Option ReadOnly
 
 function New-ProjectFolder () {
-    <# 
-    .SYNOPSIS 
+    <#
+    .SYNOPSIS
         New project folder
-    .DESCRIPTION 
+    .DESCRIPTION
         Create a project folder and assign ACL with three Active Directory groups:
         Owner
         Writer
@@ -43,12 +44,12 @@ function New-ProjectFolder () {
             return $true
         }
     }
-    
+
     function Get-DomainClass ($OrganizationalUnit) {
         $Domain = ($OrganizationalUnit -split "," | Select-String "DC=" | ForEach-Object { $_ -replace "DC=",""}) -join "."
         return $Domain
     }
-    
+
     function Connect-DomainController () {
         if ($DomainController) {
             $IPAddress = ([System.Net.Dns]::GetHostAddresses($DomainController)).IPAddressToString
@@ -73,9 +74,9 @@ function New-ProjectFolder () {
         Get-Error
         $Global:ActiveDirectorySession = $ActiveDirectorySession
     }
-    
+
     $Error.clear()
-    
+
     $FullPath = "$LitheralPath\$Name"
     # Check if folder already exists
     Write-Verbose -Message "Check if folder project $FullPath exists"
@@ -83,17 +84,17 @@ function New-ProjectFolder () {
         $ErrorActionPreference = "Stop"
         Write-Error -Message "Project already exists."
     }
-    
+
     # Connect to domain controller
     if (-not(Connect-DomainController)) {
         $ErrorActionPreference = "Stop"
         Write-Error -Message "Not connect to domain controller."
     }
-    
+
     # Create folder
     Write-Verbose -Message "Create folder $FullPath"
     New-Item -Path $FullPath -ItemType Directory | Out-Null
-    
+
     # Remove inheritance and add Administrators group to folder
     Write-Verbose -Message "Remove inheritance and add Administrators group to folder $FullPath"
     $Domain = Get-DomainClass -OrganizationalUnit $OU
@@ -111,7 +112,7 @@ function New-ProjectFolder () {
     $ACL.SetOwner($objGroup)
     Set-ACL -Path $FullPath -AclObject $ACL
     $ACL = Get-Acl -Path $FullPath
-    
+
     # Create a permission groups and set permission to folder
     Write-Verbose -Message "Create a permission groups and set permission to folder $FullPath"
     if ($Permission -contains "Owner") {
@@ -188,18 +189,18 @@ function New-ProjectFolder () {
             Write-EventLog -LogName "Application" -Source "ProjectFolder" -EntryType "Error" -EventID 1 -Category 0 -Message "Check the project folder $FullPath; an error are occurred"
         }
     }
-    
+
     # Remove all session
     Get-PSSession | Remove-PSSession
-    
+
     Write-Host "Created project folder $FullPath with permission: "@Permission
 }
 
 function Remove-OlderThan () {
-    <# 
-    .SYNOPSIS 
+    <#
+    .SYNOPSIS
         Remove files and folders older than days
-    .DESCRIPTION 
+    .DESCRIPTION
         Remove files and folders older than days
     .EXAMPLE
         Remove-OlderThan -Path C:\Temp -Days 15 -Recurse
@@ -212,7 +213,7 @@ function Remove-OlderThan () {
     )
 
     $Days = (Get-Date).AddDays(-$Days)
-    
+
     if ($Recurse.IsPresent) {
         Write-Verbose -Message "Delete files older than $Days, recursively in all the folders"
         # Delete files older than the $Days.
@@ -311,5 +312,52 @@ function Backup-ArchiveFiles () {
     if ($DeleteEmptyFolders.IsPresent) {
         Write-Verbose -Message "Delete any empty directories left behind after deleting the old files."
         Get-ChildItem -Path $Path -Recurse -Force | Where-Object { $_.PSIsContainer -and (Get-ChildItem -Path $_.FullName -Recurse -Force | Where-Object { !$_.PSIsContainer }).Length -eq 0 } | Remove-Item -Force -Recurse -Confirm:$false
+    }
+}
+
+function New-TemplateFileServer () {
+    <#
+    .SYNOPSIS
+        Create file server structure template.
+    .DESCRIPTION
+        Create a xml default template for a file server structure.
+    .EXAMPLE
+        New-TemplateFileServer -Path C:\Temp\fs1.xml
+    #>
+    [CmdletBinding()]
+    param (
+        [parameter(mandatory=$true)][string] $Path
+    )
+    $template = @"
+<!-- Root folder -->
+<folder name="root">
+    <!-- Permission local group g1 -->
+    <permission inheritance="true|false" type="access|deny" full="true|false" write="true|false" read="true|false">g1</permission>
+    <!-- d1 folder -->
+    <folder name="d1">
+        <!-- Permission local group g1 -->
+        <permission inheritance="true|false" type="access|deny" full="true|false" write="true|false" read="true|false">g1</permission>
+        <!-- Permission ldap group g2 -->
+        <permission inheritance="true|false" type="access|deny" full="true|false" write="true|false" read="true|false">g2</permission>
+        <!-- s2 subfolder -->
+        <folder name="s1">
+            <!-- Permission ldap group g2 -->
+            <permission inheritance="true|false" type="access|deny" full="true|false" write="true|false" read="true|false">g2</permission>
+        </folder>
+    </folder>
+    <!-- d2 folder -->
+    <folder name="d2">
+        <!-- Permission local group g1 -->
+        <permission inheritance="true|false" type="access|deny" full="true|false" write="true|false" read="true|false">g1</permission>
+        <!-- Permission ldap group g3 -->
+        <permission inheritance="true|false" type="access|deny" full="true|false" write="true|false" read="true|false">g3</permission>
+    </folder>
+</folder>
+"@
+    Out-File -FilePath $Path -Encoding utf8 -InputObject $template
+    if (Test-Path -Path $Path -ErrorAction SilentlyContinue) {
+        Write-Host "New template $Path"
+    } else {
+        Write-Error -Message "Unable to write a template $Path"
     }
 }

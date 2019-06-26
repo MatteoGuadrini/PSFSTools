@@ -12,7 +12,7 @@
 RootModule = 'PSFSTools.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.0'
+ModuleVersion = '1.2.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -69,7 +69,7 @@ PowerShellVersion = '4.0'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = @("New-ProjectFolder","Remove-OlderThan","Backup-ArchiveFiles")
+FunctionsToExport = @("New-ProjectFolder","Remove-OlderThan","Backup-ArchiveFiles","New-TemplateFileServer")
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -78,7 +78,7 @@ CmdletsToExport = @()
 VariablesToExport = '*'
 
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-AliasesToExport = @("mkprj","rdold","bckar")
+AliasesToExport = @("mkprj","rdold","bckar","ntemp")
 
 # DSC resources to export from this module
 # DscResourcesToExport = @()
@@ -120,4 +120,3 @@ PrivateData = @{
 # DefaultCommandPrefix = ''
 
 }
-
