@@ -3,6 +3,13 @@ Simple file server tools for complex task.
 ## A powershell module
 **PSFSTools** is a powershell module. Download and copying it under `%Windir%\System32\WindowsPowerShell\v1.0\Modules` for all users or under `%UserProfile%\Documents\WindowsPowerShell\Modules` for the current user or install through [PowershellGallery](https://www.powershellgallery.com/packages/PSFSTools).
 > ATTENTION: This module is not signed. Before import or execute cmdlet on this module, see [about_signing](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_signing) session. To skip this part and continue, run ```Set-ExecutionPolicy -ExecutionPolicy Unrestricted```
+
+You can also install it via git:
+```
+git clone https://github.com/MatteoGuadrini/PSFSTools.git
+cd PSFSTools
+copy /Y PSCouchDB %Windir%\System32\WindowsPowerShell\v1.0\Modules
+```
 ## A collection of tool
 Various task on a file server, require execution complexity; how and when to archive, create folders assigned to certain groups or delete files older than one month or delete folders that are no longer used.
 
@@ -42,7 +49,7 @@ Archive files older than a number of years. For example:
 ```powershell
 Backup-ArchivedFiles -Path C:\Temp -Years 2 -ArchivePath D:\Temp -Exclude C:\Temp\Docs,"C:\Temp\Docs two" -AllFiles
 ```
-Looking for file with Access Date older than two years into path *C:\Temp*; the destination path is *D:\Temp*. With *Exclude* option you can skip file in specified paths. Flag *AllFiles* means than all files in a folder must be older than two years. This cmdlet performing a move. 
+Looking for file with Access Date older than two years into path *C:\Temp*; the destination path is *D:\Temp*. With *Exclude* option you can skip file in specified paths. Flag *AllFiles* means than all files in a folder must be older than two years. This cmdlet performing a move.
 For more info, run:
 ```powershell
 Get-Help Backup-ArchiveFiles -Full
