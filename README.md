@@ -8,7 +8,7 @@ You can also install it via git:
 ```
 git clone https://github.com/MatteoGuadrini/PSFSTools.git
 cd PSFSTools
-copy /Y PSCouchDB %Windir%\System32\WindowsPowerShell\v1.0\Modules
+copy /Y PSFSTools %Windir%\System32\WindowsPowerShell\v1.0\Modules
 ```
 ## A collection of tool
 Various task on a file server, require execution complexity; how and when to archive, create folders assigned to certain groups or delete files older than one month or delete folders that are no longer used.

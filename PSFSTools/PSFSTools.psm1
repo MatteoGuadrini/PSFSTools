@@ -332,25 +332,25 @@ function New-TemplateFileServer () {
 <!-- Root folder -->
 <folder name="root">
     <!-- Permission local group g1 -->
-    <permission inheritance="true|false" type="access|deny" full="true|false" write="true|false" read="true|false">g1</permission>
+    <permission inheritance="true|false" type="allow|deny" full="true|false" write="true|false" read="true|false">WORKGROUP\g1</permission>
     <!-- d1 folder -->
     <folder name="d1">
         <!-- Permission local group g1 -->
-        <permission inheritance="true|false" type="access|deny" full="true|false" write="true|false" read="true|false">g1</permission>
+        <permission inheritance="true|false" type="allow|deny" full="true|false" write="true|false" read="true|false">WORKGROUP\g1</permission>
         <!-- Permission ldap group g2 -->
-        <permission inheritance="true|false" type="access|deny" full="true|false" write="true|false" read="true|false">g2</permission>
+        <permission inheritance="true|false" type="allow|deny" full="true|false" write="true|false" read="true|false">DOMAIN\g2</permission>
         <!-- s2 subfolder -->
         <folder name="s1">
             <!-- Permission ldap group g2 -->
-            <permission inheritance="true|false" type="access|deny" full="true|false" write="true|false" read="true|false">g2</permission>
+            <permission inheritance="true|false" type="allow|deny" full="true|false" write="true|false" read="true|false">DOMAIN\g2</permission>
         </folder>
     </folder>
     <!-- d2 folder -->
     <folder name="d2">
         <!-- Permission local group g1 -->
-        <permission inheritance="true|false" type="access|deny" full="true|false" write="true|false" read="true|false">g1</permission>
+        <permission inheritance="true|false" type="allow|deny" full="true|false" write="true|false" read="true|false">WORKGROUP\g1</permission>
         <!-- Permission ldap group g3 -->
-        <permission inheritance="true|false" type="access|deny" full="true|false" write="true|false" read="true|false">g3</permission>
+        <permission inheritance="true|false" type="allow|deny" full="true|false" write="true|false" read="true|false">DOMAIN\g3</permission>
     </folder>
 </folder>
 "@
