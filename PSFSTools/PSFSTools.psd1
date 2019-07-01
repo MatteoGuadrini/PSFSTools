@@ -69,7 +69,7 @@ PowerShellVersion = '4.0'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = @("New-ProjectFolder","Remove-OlderThan","Backup-ArchiveFiles","New-TemplateFileServer")
+FunctionsToExport = @("New-ProjectFolder","Remove-OlderThan","Backup-ArchiveFiles","New-TemplateFileServer","Write-FileServerFromTemplate")
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -78,7 +78,7 @@ CmdletsToExport = @()
 VariablesToExport = '*'
 
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-AliasesToExport = @("mkprj","rdold","bckar","ntemp")
+AliasesToExport = @("mkprj","rdold","bckar","ntemp","wfs")
 
 # DSC resources to export from this module
 # DscResourcesToExport = @()

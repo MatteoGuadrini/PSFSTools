@@ -2,6 +2,7 @@ New-Alias -Name "mkprj" -Value New-ProjectFolder -Option ReadOnly
 New-Alias -Name "rdold" -Value Remove-OlderThan -Option ReadOnly
 New-Alias -Name "bckar" -Value Backup-ArchiveFiles -Option ReadOnly
 New-Alias -Name "ntemp" -Value New-TemplateFileServer -Option ReadOnly
+New-Alias -Name "wfs" -Value Write-FileServerFromTemplate -Option ReadOnly
 
 function New-ProjectFolder () {
     <#
@@ -360,4 +361,102 @@ function New-TemplateFileServer () {
     } else {
         Write-Error -Message "Unable to write a template $Path"
     }
+}
+
+function Write-FileServerFromTemplate () {
+    <#
+    .SYNOPSIS
+        Create or modify structure of file server based on template file.
+    .DESCRIPTION
+        Create or modify structure of file server based on template file.
+        The file is a xml file create with New-TemplateFileServer.
+    .EXAMPLE
+        Write-FileServerFromTemplate -Template C:\Temp\fs1.xml
+    .EXAMPLE
+        Write-FileServerFromTemplate -Template C:\Temp\fs1.xml -RootPath D:\FS
+    #>
+    [CmdletBinding()]
+    param (
+        [parameter(mandatory=$true)][string] $Template,
+        [string] $RootPath = $($PWD.Path),
+        [switch] $DeleteOld
+    )
+    # Read Template
+    try {
+        [xml] $Template = Get-Content -Path $Template
+    } catch [System.Management.Automation.ArgumentTransformationMetadataException] {
+        throw "$Template is not a xml format."
+    }
+    # Set root
+    $root = Join-Path -Path $RootPath -ChildPath $Template.folder.name
+    # Create a function than walk to xml child
+    function createFSTree ($xml, $root, $acl) {
+        $fc = 0
+        foreach ($e in $xml) {
+            # Create folder structure
+            if ($e.ParentNode.folder -as [array]) {
+                $parent = Join-Path -Path $root -ChildPath $e.ParentNode.folder[$fc].name
+            } else {
+                $parent = Join-Path -Path $root -ChildPath $e.ParentNode.folder.name
+            }
+            # Create folder if not exists
+            if (-not(Test-Path -Path $parent -ErrorAction SilentlyContinue)) {
+                New-Item -Path $parent -ItemType Directory | Out-Null
+                Write-Host "$parent folder created" -ForegroundColor Green
+            } else {
+                Write-Host "$parent folder exists" -ForegroundColor Yellow
+            }
+            # Apply permissions
+            $acl = Get-Acl -Path $RootPath
+            foreach ($p in $e.permission) {
+                $acl_map = [pscustomobject]@{
+                    full = "FullControl"
+                    write = "Read,Write,Modify"
+                    read = "Read,ReadAndExecute,ListDirectory"
+                    type = $p.type
+                    inheritance = "InheritOnly"
+                    group = $p."#text"
+                }
+                $ACL.SetAccessRuleProtection($true, $true)
+                $InheritanceFlag = @()
+                $InheritanceFlag += [System.Security.AccessControl.InheritanceFlags]::ContainerInherit
+                $InheritanceFlag += [System.Security.AccessControl.InheritanceFlags]::ObjectInherit
+                $PropagationFlag = $(
+                    if ($p.inheritance -eq "true") { $acl_map.inheritance }
+                    else { "None" }
+                )
+                $objType = $(
+                    if ($acl_map.type -eq "allow") {
+                        0
+                    } else {
+                        1
+                    }
+                )
+                $colRights = $(
+                    if ($p.full -eq "true") { $acl_map.full }
+                    elseif ($p.write -eq "true") { $acl_map.write }
+                    elseif ($p.read -eq "true") { $acl_map.read }
+                )
+                $objGroup = New-Object System.Security.Principal.NTAccount($acl_map.group -split '\',-1,'SimpleMatch')
+                $objACE = New-Object System.Security.AccessControl.FileSystemAccessRule($objGroup, $colRights, $InheritanceFlag, $PropagationFlag, $objType)
+                # Check if permission are same
+                $ACL.SetAccessRule($objACE)
+                (Get-Item -Path $parent).SetAccessControl($ACL)
+                Write-Host -ForegroundColor DarkGreen "
+        Group:          $objGroup
+        Rights:         $colRights
+        Inheritance:    $InheritanceFlag
+        Propagation:    $PropagationFlag
+        Type:           $($acl_map.type)
+                "
+            }
+            # Check if child has a folder
+            if ($e.folder.folder) {
+                createFSTree -xml $e.folder -root $parent -acl $ACL
+            }
+            $fc++
+        }
+    }
+    # Walk to xml
+    createFSTree -xml $Template -root $root -acl $acl
 }
