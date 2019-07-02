@@ -95,7 +95,7 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = @("File-Server","FS","Data","Archive","File","Server")
+        Tags = @("File-Server","FS","Data","Archive","File","Server","Topology")
 
         # A URL to the license for this module.
         LicenseUri = 'https://github.com/MatteoGuadrini/PSFSTools/blob/master/LICENSE.md'

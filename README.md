@@ -2,7 +2,7 @@
 Simple file server tools for complex task.
 ## A powershell module
 **PSFSTools** is a powershell module. Download and copying it under `%Windir%\System32\WindowsPowerShell\v1.0\Modules` for all users or under `%UserProfile%\Documents\WindowsPowerShell\Modules` for the current user or install through [PowershellGallery](https://www.powershellgallery.com/packages/PSFSTools).
-> ATTENTION: This module is not signed. Before import or execute cmdlet on this module, see [about_signing](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_signing) session. To skip this part and continue, run ```Set-ExecutionPolicy -ExecutionPolicy Unrestricted```
+> ATTENTION: This module is not signed. Before import or execute cmdlet on this module, see [about_signing](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_signing) session. Verify execution of scripts is allowed with `Get-ExecutionPolicy` (should be RemoteSigned or Unrestricted). If scripts are not enabled, run PowerShell as Administrator and call ```Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Confirm```.
 
 You can also install it via git:
 ```
@@ -54,6 +54,21 @@ For more info, run:
 ```powershell
 Get-Help Backup-ArchiveFiles -Full
 ```
+## File server topology configuration
+To create and maintain a file server topology, use the following commands.
+### New-TemplateFileServer
+With this command you can create an example topology file of a file server.
+```powershell
+New-TemplateFileServer -Path C:\Temp\fs1.xml
+```
+Change the topology according to your needs.
+### Write-FileServerFromTemplate
+Applying topology means creating folders and assigning them permissions, specified in the topology template file.
+To apply it, run this command:
+```powershell
+Write-FileServerFromTemplate -Template C:\Temp\fs1.xml -RootPath D:\FS
+```
+Applying the command a second time, the new folders in the topology will be created, while the existing ones will be ignored. All permissions will be overwritten instead.
 
 **A great thanks**.
 
