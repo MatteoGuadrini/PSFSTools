@@ -104,7 +104,7 @@ PrivateData = @{
         ProjectUri = 'https://matteoguadrini.github.io/PSFSTools'
 
         # A URL to an icon representing this module.
-        # IconUri = ''
+        IconUri = 'https://i.ibb.co/xq6c0Xj/psfstools.png'
 
         # ReleaseNotes of this module
         # ReleaseNotes = ''
