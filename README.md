@@ -1,3 +1,5 @@
+<img src="https://i.ibb.co/xq6c0Xj/psfstools.png" alt="PSFSTools">
+
 # PSFSTools is:
 Simple file server tools for complex task.
 ## A powershell module
@@ -18,6 +20,8 @@ This module, with
 * New-ProjectFolder
 * Remove-OlderThan
 * Backup-ArchiveFiles
+* New-TemplateFileServer
+* Write-FileServerFromTemplate
 
 ### New-ProjectFolder
 Creates a project folder and assign ACL with three Active Directory groups: Owner, Writer, Reader. For example:
@@ -70,6 +74,11 @@ Write-FileServerFromTemplate -Template C:\Temp\fs1.xml -RootPath D:\FS
 ```
 Applying the command a second time, the new folders in the topology will be created, while the existing ones will be ignored. All permissions will be overwritten instead.
 
+For more info, run:
+```powershell
+Get-Help New-TemplateFileServer -Full
+Get-Help Write-FileServerFromTemplate -Full
+```
 **A great thanks**.
 
 For donations, press this
