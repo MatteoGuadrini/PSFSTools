@@ -389,6 +389,7 @@ function Write-FileServerFromTemplate () {
     }
     # Set root
     $root = Join-Path -Path $RootPath -ChildPath $Template.folder.name
+    Write-Verbose "root $root"
     # Create a function than walk to xml child
     function createFSTree ($xml, $root, $acl) {
         $fc = 0
@@ -417,6 +418,7 @@ function Write-FileServerFromTemplate () {
                     inheritance = "InheritOnly"
                     group = $p."#text"
                 }
+                Write-Verbose "Group: $($acl_map.group)"
                 $ACL.SetAccessRuleProtection($true, $true)
                 $InheritanceFlag = @()
                 $InheritanceFlag += [System.Security.AccessControl.InheritanceFlags]::ContainerInherit
