@@ -1,0 +1,20 @@
+TOPIC
+	about_psfstools_content
+SHORT DESCRIPTION
+	Simple file server tools for complex task.
+LONG DESCRIPTION
+	Various task on a file server, require execution complexity; 
+	how and when to archive, create folders assigned to certain groups or delete files older than one month or delete folders that are no longer used.
+	Tools:
+		- New-ProjectFolder
+		- Remove-OlderThan
+		- Backup-ArchiveFiles
+		- New-TemplateFileServer
+		- Write-FileServerFromTemplate
+SEE ALSO
+	Get-ChildItem
+	Get-Item
+	Get-Acl
+	Set-Acl
+LINK
+    https://matteoguadrini.github.io/PSFSTools/
