@@ -20,12 +20,12 @@ function New-ProjectFolder () {
     #>
     [CmdletBinding()]
     param (
-        [parameter(mandatory=$true)][ValidateNotNull()][string]$Name,
-        [parameter(mandatory=$true)][ValidateNotNull()][string]$LitheralPath,
-        [parameter(mandatory=$true)][ValidateSet("Reader","Writer","Owner")][array]$Permission,
-        [parameter(mandatory=$true)][ValidateNotNull()][string]$OU,
-        [parameter(mandatory=$false)][string]$DomainController,
-        [parameter(mandatory=$false)][switch]$Log
+        [parameter(mandatory = $true)][ValidateNotNull()][string]$Name,
+        [parameter(mandatory = $true)][ValidateNotNull()][string]$LitheralPath,
+        [parameter(mandatory = $true)][ValidateSet("Reader", "Writer", "Owner")][array]$Permission,
+        [parameter(mandatory = $true)][ValidateNotNull()][string]$OU,
+        [parameter(mandatory = $false)][string]$DomainController,
+        [parameter(mandatory = $false)][switch]$Log
     )
     Set-Variable -Name $OU -Option AllScope
     if ($DomainController) {
@@ -47,7 +47,7 @@ function New-ProjectFolder () {
     }
 
     function Get-DomainClass ($OrganizationalUnit) {
-        $Domain = ($OrganizationalUnit -split "," | Select-String "DC=" | ForEach-Object { $_ -replace "DC=",""}) -join "."
+        $Domain = ($OrganizationalUnit -split "," | Select-String "DC=" | ForEach-Object { $_ -replace "DC=", "" }) -join "."
         return $Domain
     }
 
@@ -118,18 +118,18 @@ function New-ProjectFolder () {
     Write-Verbose -Message "Create a permission groups and set permission to folder $FullPath"
     if ($Permission -contains "Owner") {
         # Create Active Directory group
-        $OwnerGroupName = (("$Name" + "_Owners").Replace(" ","_")).Trim()
+        $OwnerGroupName = (("$Name" + "_Owners").Replace(" ", "_")).Trim()
         Write-Verbose -Message "Create a permission for Owner group: $OwnerGroupName"
         ## Name max 64 char
-        $OwnerGroupName = if ($OwnerGroupName.Length -gt 64) {$OwnerGroupName.Substring(0,64)} else {$OwnerGroupName}
-        $OwnerGroupSAM = ((("$Name" + ".owners").Replace(" ","_")).Trim()).ToLower()
+        $OwnerGroupName = if ($OwnerGroupName.Length -gt 64) { $OwnerGroupName.Substring(0, 64) } else { $OwnerGroupName }
+        $OwnerGroupSAM = ((("$Name" + ".owners").Replace(" ", "_")).Trim()).ToLower()
         ## Samaccountname max 256
-        $OwnerGroupSAM = if ($OwnerGroupSAM.Length -gt 256) {$OwnerGroupSAM.Substring(0,256)} else {$OwnerGroupSAM}
+        $OwnerGroupSAM = if ($OwnerGroupSAM.Length -gt 256) { $OwnerGroupSAM.Substring(0, 256) } else { $OwnerGroupSAM }
         New-ADGroup -Name $OwnerGroupName -SamAccountName $OwnerGroupSAM -GroupCategory Security -GroupScope Global -DisplayName "$Name Owners" -Path $OU -Description "Owners of project folder $FullPath on $($env:computername)"
         do {
             Start-Sleep -Seconds 2
         } until (Get-ADGroup -Identity $OwnerGroupSAM -ErrorAction SilentlyContinue)
-        Invoke-Command -Session $ActiveDirectorySession -ScriptBlock {repadmin /syncall /AdeP} | Out-Null
+        Invoke-Command -Session $ActiveDirectorySession -ScriptBlock { repadmin /syncall /AdeP } | Out-Null
         # Assign permission to folder with Active Directory group
         $colRights = [System.Security.AccessControl.FileSystemRights]"FullControl"
         $objGroup = New-Object System.Security.Principal.NTAccount($Domain, $OwnerGroupSAM)
@@ -140,18 +140,18 @@ function New-ProjectFolder () {
     }
     if ($Permission -contains "Writer") {
         # Create Active Directory group
-        $WriterGroupName = (("$Name" + "_Writers").Replace(" ","_")).Trim()
+        $WriterGroupName = (("$Name" + "_Writers").Replace(" ", "_")).Trim()
         Write-Verbose -Message "Create a permission for Owner group: $WriterGroupName"
         ## Name max 64 char
-        $WriterGroupName = if ($WriterGroupName.Length -gt 64) {$WriterGroupName.Substring(0,64)} else {$WriterGroupName}
-        $WriterGroupSAM = ((("$Name" + ".writers").Replace(" ","_")).Trim()).ToLower()
+        $WriterGroupName = if ($WriterGroupName.Length -gt 64) { $WriterGroupName.Substring(0, 64) } else { $WriterGroupName }
+        $WriterGroupSAM = ((("$Name" + ".writers").Replace(" ", "_")).Trim()).ToLower()
         ## Samaccountname max 256
-        $WriterGroupSAM = if ($WriterGroupSAM.Length -gt 256) {$WriterGroupSAM.Substring(0,256)} else {$WriterGroupSAM}
+        $WriterGroupSAM = if ($WriterGroupSAM.Length -gt 256) { $WriterGroupSAM.Substring(0, 256) } else { $WriterGroupSAM }
         New-ADGroup -Name $WriterGroupName -SamAccountName $WriterGroupSAM -GroupCategory Security -GroupScope Global -DisplayName "$Name Writers" -Path $OU -Description "Writers of project folder $FullPath on $($env:computername)"
         do {
             Start-Sleep -Seconds 2
         } until (Get-ADGroup -Identity $WriterGroupSAM -ErrorAction SilentlyContinue)
-        Invoke-Command -Session $ActiveDirectorySession -ScriptBlock {repadmin /syncall /AdeP} | Out-Null
+        Invoke-Command -Session $ActiveDirectorySession -ScriptBlock { repadmin /syncall /AdeP } | Out-Null
         # Assign permission to folder with Active Directory group
         $colRights = [System.Security.AccessControl.FileSystemRights]"Read,Write,Modify"
         $objGroup = New-Object System.Security.Principal.NTAccount($Domain, $WriterGroupSAM)
@@ -162,18 +162,18 @@ function New-ProjectFolder () {
     }
     if ($Permission -contains "Reader") {
         # Create Active Directory group
-        $ReaderGroupName = (("$Name" + "_Readers").Replace(" ","_")).Trim()
+        $ReaderGroupName = (("$Name" + "_Readers").Replace(" ", "_")).Trim()
         Write-Verbose -Message "Create a permission for Owner group: $ReaderGroupName"
         ## Name max 64 char
-        $ReaderGroupName = if ($ReaderGroupName.Length -gt 64) {$ReaderGroupName.Substring(0,64)} else {$ReaderGroupName}
-        $ReaderGroupSAM = ((("$Name" + ".readers").Replace(" ","_")).Trim()).ToLower()
+        $ReaderGroupName = if ($ReaderGroupName.Length -gt 64) { $ReaderGroupName.Substring(0, 64) } else { $ReaderGroupName }
+        $ReaderGroupSAM = ((("$Name" + ".readers").Replace(" ", "_")).Trim()).ToLower()
         ## Samaccountname max 256
-        $ReaderGroupSAM = if ($ReaderGroupSAM.Length -gt 256) {$ReaderGroupSAM.Substring(0,256)} else {$ReaderGroupSAM}
+        $ReaderGroupSAM = if ($ReaderGroupSAM.Length -gt 256) { $ReaderGroupSAM.Substring(0, 256) } else { $ReaderGroupSAM }
         New-ADGroup -Name $ReaderGroupName -SamAccountName $ReaderGroupSAM -GroupCategory Security -GroupScope Global -DisplayName "$Name Readers" -Path $OU -Description "Readers of project folder $FullPath on $($env:computername)"
         do {
             Start-Sleep -Seconds 2
         } until (Get-ADGroup -Identity $ReaderGroupSAM -ErrorAction SilentlyContinue)
-        Invoke-Command -Session $ActiveDirectorySession -ScriptBlock {repadmin /syncall /AdeP} | Out-Null
+        Invoke-Command -Session $ActiveDirectorySession -ScriptBlock { repadmin /syncall /AdeP } | Out-Null
         # Assign permission to folder with Active Directory group
         $colRights = [System.Security.AccessControl.FileSystemRights]"Read,ReadAndExecute,ListDirectory"
         $objGroup = New-Object System.Security.Principal.NTAccount($Domain, $ReaderGroupSAM)
@@ -208,9 +208,9 @@ function Remove-OlderThan () {
     #>
     [CmdletBinding()]
     param (
-        [parameter(mandatory=$true)][ValidateNotNull()][string]$Path,
+        [parameter(mandatory = $true)][ValidateNotNull()][string]$Path,
         $Days = 7,
-        [parameter(mandatory=$false)][switch]$Recurse
+        [parameter(mandatory = $false)][switch]$Recurse
     )
 
     $Days = (Get-Date).AddDays(-$Days)
@@ -242,13 +242,13 @@ function Backup-ArchiveFiles () {
     #>
     [CmdletBinding()]
     param (
-        [parameter(mandatory=$true)][ValidateNotNull()][string]$Path,
+        [parameter(mandatory = $true)][ValidateNotNull()][string]$Path,
         $Years = 1,
-        [parameter(mandatory=$true)][ValidateNotNull()][string]$ArchivePath,
-        [parameter(mandatory=$false)][array]$Exclude,
-        [parameter(mandatory=$false)][switch]$AllFiles,
-        [parameter(mandatory=$false)][switch]$DeleteEmptyFolders,
-        [parameter(mandatory=$false)][switch]$Log
+        [parameter(mandatory = $true)][ValidateNotNull()][string]$ArchivePath,
+        [parameter(mandatory = $false)][array]$Exclude,
+        [parameter(mandatory = $false)][switch]$AllFiles,
+        [parameter(mandatory = $false)][switch]$DeleteEmptyFolders,
+        [parameter(mandatory = $false)][switch]$Log
     )
     # Verify if Log file exists
     if ($Log.IsPresent) {
@@ -263,7 +263,7 @@ function Backup-ArchiveFiles () {
     # Prepare exclusion patterns
     if ($Exclude) {
         foreach ($Exclusion in $Exclude) {
-            $Pattern += "|" + $Exclusion -replace "\\","\\" -replace ":","\:" -replace "\.","\."
+            $Pattern += "|" + $Exclusion -replace "\\", "\\" -replace ":", "\:" -replace "\.", "\."
         }
         $Pattern = $Pattern.TrimStart("|")
     } else {
@@ -274,7 +274,7 @@ function Backup-ArchiveFiles () {
     if ($AllFiles.IsPresent) {
         # Loop the path: only folders
         foreach ($folder in (Get-ChildItem -Path $Path -Directory -Recurse | Where-Object { $_.FullName -notmatch $Pattern } )) {
-            $Destination = ("$ArchivePath\$Year\" + ($folder.FullName -replace "(^[A-Za-z]\:\\)","")) -replace "\\$",""
+            $Destination = ("$ArchivePath\$Year\" + ($folder.FullName -replace "(^[A-Za-z]\:\\)", "")) -replace "\\$", ""
             Write-Verbose -Message "Set destination: $Destination"
             # Check if all files in a folder are older than $Year
             $all = Get-ChildItem -Path $folder.FullName -File | Where-Object { $_.FullName -notmatch $Pattern } | Measure-Object
@@ -296,7 +296,7 @@ function Backup-ArchiveFiles () {
     } else {
         # Loop the path: only files
         foreach ($file in (Get-ChildItem -Path $Path -File -Recurse | Where-Object { $_.FullName -notmatch $Pattern } )) {
-            $Destination = ("$ArchivePath\$Year\" + ($file.FullName -replace "(^[A-Za-z]\:\\)","")) -replace "\\$",""
+            $Destination = ("$ArchivePath\$Year\" + ($file.FullName -replace "(^[A-Za-z]\:\\)", "")) -replace "\\$", ""
             Write-Verbose -Message "Move file $($file.FullName) in $Destination"
             if (-not (Test-Path -Path $(Split-Path -Path $Destination))) { New-Item -Path $(Split-Path -Path $Destination) -ItemType Directory | Out-Null }
             Move-Item -Path $file.FullName -Destination $Destination -Force -Confirm:$false
@@ -327,7 +327,7 @@ function New-TemplateFileServer () {
     #>
     [CmdletBinding()]
     param (
-        [parameter(mandatory=$true)][string] $Path
+        [parameter(mandatory = $true)][string] $Path
     )
     $template = @"
 <!-- Root folder -->
@@ -377,9 +377,9 @@ function Write-FileServerFromTemplate () {
     #>
     [CmdletBinding()]
     param (
-        [parameter(mandatory=$true)][string] $Template,
+        [parameter(mandatory = $true)][string] $Template,
         [string] $RootPath = $($PWD.Path),
-        [switch] $DeleteOld
+        [switch] $Force
     )
     # Read Template
     try {
@@ -391,7 +391,7 @@ function Write-FileServerFromTemplate () {
     $root = Join-Path -Path $RootPath -ChildPath $Template.folder.name
     Write-Verbose "root $root"
     # Create a function than walk to xml child
-    function createFSTree ($xml, $root, $acl) {
+    function createFSTree ($xml, $root) {
         $fc = 0
         foreach ($e in $xml) {
             # Create folder structure
@@ -408,15 +408,16 @@ function Write-FileServerFromTemplate () {
                 Write-Host "$parent folder exists" -ForegroundColor Yellow
             }
             # Apply permissions
-            $acl = Get-Acl -Path $RootPath
+            $ACL = Get-Acl -Path $RootPath
+            [bool]$changed = $false
             foreach ($p in $e.permission) {
                 $acl_map = [pscustomobject]@{
-                    full = "FullControl"
-                    write = "Read,Write,Modify"
-                    read = "Read,ReadAndExecute,ListDirectory"
-                    type = $p.type
+                    full        = "FullControl"
+                    write       = "Read,Write,Modify"
+                    read        = "Read,ReadAndExecute,ListDirectory"
+                    type        = $p.type
                     inheritance = "InheritOnly"
-                    group = $p."#text"
+                    group       = $p."#text"
                 }
                 Write-Verbose "Group: $($acl_map.group)"
                 $ACL.SetAccessRuleProtection($true, $true)
@@ -439,26 +440,53 @@ function Write-FileServerFromTemplate () {
                     elseif ($p.write -eq "true") { $acl_map.write }
                     elseif ($p.read -eq "true") { $acl_map.read }
                 )
-                $objGroup = New-Object System.Security.Principal.NTAccount($acl_map.group -split '\',-1,'SimpleMatch')
+                $objGroup = New-Object System.Security.Principal.NTAccount($acl_map.group -split '\', -1, 'SimpleMatch')
                 $objACE = New-Object System.Security.AccessControl.FileSystemAccessRule($objGroup, $colRights, $InheritanceFlag, $PropagationFlag, $objType)
-                # Check if permission are same
+                $currentAcl = Get-Acl -Path $parent
                 $ACL.SetAccessRule($objACE)
+                # Check if changed permission
+                foreach ($permission in $objACE) {
+                    if ($currentAcl.Access.IdentityReference -notcontains $permission.IdentityReference) {
+                        [bool]$changed = $true
+                    } else {
+                        foreach ($c in $currentAcl.Access) {
+                            # Check IdentityReference
+                            if ($c.IdentityReference -eq $permission.IdentityReference) {
+                                # Check AccessControlType
+                                if ($c.AccessControlType -ne $permission.AccessControlType) {
+                                    [bool]$changed = $true
+                                    continue
+                                }
+                                # Check FileSystemRights
+                                if ($c.FileSystemRights -ne $permission.FileSystemRights) {
+                                    [bool]$changed = $true
+                                    continue
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            # Check if removed permission
+            foreach ($permission in $currentAcl.Access) {
+                if ($ACL.Access.IdentityReference -notcontains $permission.IdentityReference) {
+                    [bool]$changed = $true
+                }
+            }
+            if ($changed) { 
                 (Get-Item -Path $parent).SetAccessControl($ACL)
-                Write-Host -ForegroundColor DarkGreen "
-        Group:          $objGroup
-        Rights:         $colRights
-        Inheritance:    $InheritanceFlag
-        Propagation:    $PropagationFlag
-        Type:           $($acl_map.type)
-                "
+                Write-Host -ForegroundColor DarkGreen $ACL.AccessToString
+            } elseif ($Force.IsPresent) { 
+                (Get-Item -Path $parent).SetAccessControl($ACL)
+                Write-Host -ForegroundColor DarkGreen $ACL.AccessToString
             }
             # Check if child has a folder
             if ($e.folder.folder) {
-                createFSTree -xml $e.folder -root $parent -acl $ACL
+                createFSTree -xml $e.folder -root $parent
             }
             $fc++
         }
     }
     # Walk to xml
-    createFSTree -xml $Template -root $root -acl $acl
+    createFSTree -xml $Template -root $root
 }

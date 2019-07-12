@@ -72,7 +72,7 @@ To apply it, run this command:
 ```powershell
 Write-FileServerFromTemplate -Template C:\Temp\fs1.xml -RootPath D:\FS
 ```
-Applying the command a second time, the new folders in the topology will be created, while the existing ones will be ignored. All permissions will be overwritten instead.
+Applying the command a second time, the new folders in the topology will be created, while the existing ones will be ignored. All permissions will be overwritten, if `-Force` parameter is specified.
 
 For more info, run:
 ```powershell
