@@ -330,6 +330,7 @@ function New-TemplateFileServer () {
         [parameter(mandatory = $true)][string] $Path
     )
     $template = @"
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <!-- Root folder -->
 <folder name="root">
     <!-- Permission local group g1 -->
