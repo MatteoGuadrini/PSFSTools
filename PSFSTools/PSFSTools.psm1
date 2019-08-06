@@ -416,7 +416,7 @@ function Write-FileServerFromTemplate () {
             }
             # Check DeleteOld
             if ($DeleteDiff.IsPresent -and $e.ParentNode.folder) {
-                $folders = Get-ChildItem -Path (Get-Item -Path $parent).parent.FullName
+                $folders = Get-ChildItem -Path (Get-Item -Path $parent).parent.FullName -Directory
                 foreach ($folder in $folders) {
                     if ($tempdirs -and $tempDirs -notcontains $folder.Name) {
                         if ($ForceDiff -or $PSCmdlet.ShouldContinue("Are you sure delete folder $($folder.FullName) ?", "Delete folder $($folder.FullName).")) {
