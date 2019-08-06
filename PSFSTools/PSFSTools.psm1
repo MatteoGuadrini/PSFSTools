@@ -375,12 +375,16 @@ function Write-FileServerFromTemplate () {
         Write-FileServerFromTemplate -Template C:\Temp\fs1.xml
     .EXAMPLE
         Write-FileServerFromTemplate -Template C:\Temp\fs1.xml -RootPath D:\FS
+        .EXAMPLE
+        Write-FileServerFromTemplate -Template C:\Temp\fs1.xml -RootPath D:\FS -DeleteDiff
     #>
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess = $true)]
     param (
         [parameter(mandatory = $true)][string] $Template,
         [string] $RootPath = $($PWD.Path),
-        [switch] $Force
+        [switch] $DeleteDiff,
+        [switch] $ForceDiff,
+        [switch] $ForceACL
     )
     # Read Template
     try {
@@ -398,8 +402,10 @@ function Write-FileServerFromTemplate () {
             # Create folder structure
             if ($e.ParentNode.folder -as [array]) {
                 $parent = Join-Path -Path $root -ChildPath $e.ParentNode.folder[$fc].name
+                $tempDirs = $e.ParentNode.folder.name
             } else {
                 $parent = Join-Path -Path $root -ChildPath $e.ParentNode.folder.name
+                $tempDirs = @($e.ParentNode.folder.name)
             }
             # Create folder if not exists
             if (-not(Test-Path -Path $parent -ErrorAction SilentlyContinue)) {
@@ -407,6 +413,18 @@ function Write-FileServerFromTemplate () {
                 Write-Host "$parent folder created" -ForegroundColor Green
             } else {
                 Write-Host "$parent folder exists" -ForegroundColor Yellow
+            }
+            # Check DeleteOld
+            if ($DeleteDiff.IsPresent -and $e.ParentNode.folder) {
+                $folders = Get-ChildItem -Path (Get-Item -Path $parent).parent.FullName
+                foreach ($folder in $folders) {
+                    if ($tempdirs -and $tempDirs -notcontains $folder.Name) {
+                        if ($ForceDiff -or $PSCmdlet.ShouldContinue("Are you sure delete folder $($folder.FullName) ?", "Delete folder $($folder.FullName).")) {
+                            Remove-Item -Path $folder.FullName -Recurse -Force
+                            Write-Host "Deleted folder $($folder.FullName)" -ForegroundColor Red
+                        }
+                    }
+                }
             }
             # Apply permissions
             $ACL = Get-Acl -Path $RootPath
@@ -477,7 +495,7 @@ function Write-FileServerFromTemplate () {
             if ($changed) { 
                 (Get-Item -Path $parent).SetAccessControl($ACL)
                 Write-Host -ForegroundColor DarkGreen $ACL.AccessToString
-            } elseif ($Force.IsPresent) { 
+            } elseif ($ForceACL.IsPresent) { 
                 (Get-Item -Path $parent).SetAccessControl($ACL)
                 Write-Host -ForegroundColor DarkGreen $ACL.AccessToString
             }
@@ -489,5 +507,5 @@ function Write-FileServerFromTemplate () {
         }
     }
     # Walk to xml
-    createFSTree -xml $Template -root $root
+    createFSTree -xml $Template.folder -root $root
 }
