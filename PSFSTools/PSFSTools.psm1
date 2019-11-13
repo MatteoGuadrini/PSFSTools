@@ -295,7 +295,7 @@ function Backup-ArchiveFiles () {
         }
     } else {
         # Loop the path: only files
-        foreach ($file in (Get-ChildItem -Path $Path -File -Recurse | Where-Object { $_.FullName -notmatch $Pattern } )) {
+        foreach ($file in (Get-ChildItem -Path $Path -File -Recurse | Where-Object { $_.FullName -notmatch $Pattern -and $_.LastAccessTime -lt $OlderThan } )) {
             $Destination = ("$ArchivePath\$Year\" + ($file.FullName -replace "(^[A-Za-z]\:\\)", "")) -replace "\\$", ""
             Write-Verbose -Message "Move file $($file.FullName) in $Destination"
             if (-not (Test-Path -Path $(Split-Path -Path $Destination))) { New-Item -Path $(Split-Path -Path $Destination) -ItemType Directory | Out-Null }
