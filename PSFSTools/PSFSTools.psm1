@@ -280,7 +280,7 @@ function Backup-ArchiveFiles () {
             $all = Get-ChildItem -Path $folder.FullName -File | Where-Object { $_.FullName -notmatch $Pattern } | Measure-Object
             $older = Get-ChildItem -Path $folder.FullName -File | Where-Object { $_.FullName -notmatch $Pattern -and $_.LastAccessTime -lt $OlderThan } | Measure-Object
             Write-Verbose -Message "Check if all files in folder $($folder.FullName) are older than $OlderThan; all is $($all.Count) - older is $($older.Count)"
-            if ($all.Count -eq $older.Count) {
+            if (($all.Count -eq $older.Count) -and ($all.Count -ne 0)) {
                 Write-Verbose -Message "Move files into $($folder.FullName) in $Destination"
                 if (-not (Test-Path -Path $Destination)) { New-Item -Path $Destination -ItemType Directory | Out-Null }
                 Get-ChildItem -Path $folder.FullName -File | Where-Object { $_.FullName -notmatch $Pattern } | Move-Item -Destination "$Destination\" -Force -Confirm:$false
