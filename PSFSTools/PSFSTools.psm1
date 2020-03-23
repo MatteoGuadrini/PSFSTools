@@ -3,6 +3,7 @@ New-Alias -Name "rdold" -Value Remove-OlderThan -Option ReadOnly
 New-Alias -Name "bckar" -Value Backup-ArchiveFiles -Option ReadOnly
 New-Alias -Name "ntemp" -Value New-TemplateFileServer -Option ReadOnly
 New-Alias -Name "wfs" -Value Write-FileServerFromTemplate -Option ReadOnly
+New-Alias -Name "gdf" -Value Get-DedupFiles -Option ReadOnly
 
 function New-ProjectFolder () {
     <#
@@ -508,4 +509,62 @@ function Write-FileServerFromTemplate () {
     }
     # Walk to xml
     createFSTree -xml $Template.folder -root $root
+}
+
+function Get-DedupFiles () {
+    <#
+    .SYNOPSIS
+        Create or modify structure of file server based on template file.
+    .DESCRIPTION
+        Create or modify structure of file server based on template file.
+        The file is a xml file create with New-TemplateFileServer.
+    .EXAMPLE
+        Get-DedupFiles -Path C:\repo
+    .EXAMPLE
+        Get-DedupFiles -Path C:\repo -Recurse
+    .EXAMPLE
+        Get-DedupFiles -Path C:\repo -Recurse -Depth 5
+    #>
+    [CmdletBinding()]
+    param (
+        [parameter(mandatory = $true)][string] $Path,
+        [int] $Depth,
+        [switch] $Recurse
+    )
+    # Init result variables
+    $files = @()
+    $duplicates = @()
+    # Splatting parameter
+    $HashArguments = @{
+        Path = $Path
+        File = $true
+        Recurse = $Recurse.IsPresent
+    }
+    if ($Depth) { $HashArguments.Add("Depth", $Depth) }
+    # Iterate each files traverse root path
+    foreach ($file in (Get-ChildItem @HashArguments)) {
+        # Prepare PSCustomObject
+        $FileHash = [PSCustomObject]@{
+            Name = $file.Name
+            Path = $file.FullName
+            DedupFile = $null
+            DedupHash = $null
+            Created = $file.CreationTime
+            Modified = $file.LastWriteTime
+            Accessed = $file.LastAccessTime
+            Hash = (Get-FileHash $file.FullName -Algorithm MD5).Hash
+        }
+        # Does it have a duplicate?
+        foreach ($file in $files) {
+            if ($FileHash.Hash -eq $file.Hash) {
+                $FileHash.DedupFile = $file.Path
+                $FileHash.DedupHash = $file.Hash
+                $duplicates += $FileHash
+                break
+            }
+        }
+        $files += $FileHash
+    }
+    # Return duplicates
+    return $duplicates
 }

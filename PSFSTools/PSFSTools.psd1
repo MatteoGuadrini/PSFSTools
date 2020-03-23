@@ -12,7 +12,7 @@
 RootModule = 'PSFSTools.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.2.5'
+ModuleVersion = '1.2.6'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -69,7 +69,7 @@ PowerShellVersion = '4.0'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = @("New-ProjectFolder","Remove-OlderThan","Backup-ArchiveFiles","New-TemplateFileServer","Write-FileServerFromTemplate")
+FunctionsToExport = @("New-ProjectFolder", "Remove-OlderThan", "Backup-ArchiveFiles", "New-TemplateFileServer", "Write-FileServerFromTemplate", "Get-DedupFiles")
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -78,7 +78,7 @@ CmdletsToExport = @()
 VariablesToExport = '*'
 
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-AliasesToExport = @("mkprj","rdold","bckar","ntemp","wfs")
+AliasesToExport = @("mkprj", "rdold", "bckar", "ntemp", "wfs", "gdf")
 
 # DSC resources to export from this module
 # DscResourcesToExport = @()
@@ -95,7 +95,7 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = @("File-Server","FS","Data","Archive","File","Server","Topology")
+        Tags = @("File-Server", "FS", "Data", "Archive", "File", "Server", "Topology", "Deduplication")
 
         # A URL to the license for this module.
         LicenseUri = 'https://github.com/MatteoGuadrini/PSFSTools/blob/master/LICENSE.md'
