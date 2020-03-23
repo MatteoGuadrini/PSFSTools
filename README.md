@@ -79,6 +79,7 @@ For more info, run:
 ```powershell
 Get-Help New-TemplateFileServer -Full
 Get-Help Write-FileServerFromTemplate -Full
+```
 
 ### Get-DedupFiles
 To recover files that are duplicated in a certain path
