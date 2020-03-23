@@ -22,6 +22,7 @@ This module, with
 * Backup-ArchiveFiles
 * New-TemplateFileServer
 * Write-FileServerFromTemplate
+* Get-DedupFiles
 
 ### New-ProjectFolder
 Creates a project folder and assign ACL with three Active Directory groups: Owner, Writer, Reader. For example:
@@ -78,7 +79,21 @@ For more info, run:
 ```powershell
 Get-Help New-TemplateFileServer -Full
 Get-Help Write-FileServerFromTemplate -Full
+
+### Get-DedupFiles
+To recover files that are duplicated in a certain path
+```powershell
+Get-DedupFiles -Path C:\Temp
 ```
+Or to traverse the path, just specify the _-Recurse_ parameter: 
+```powershell
+Get-DedupFiles -Path C:\Temp -Recurse
+```
+
+For more info, run:
+```powershell
+Get-Help Get-DedupFiles -Full
+
 **A great thanks**.
 
 For donations, press this

@@ -514,10 +514,10 @@ function Write-FileServerFromTemplate () {
 function Get-DedupFiles () {
     <#
     .SYNOPSIS
-        Create or modify structure of file server based on template file.
+        Retrieve all duplicate files from a path.
     .DESCRIPTION
-        Create or modify structure of file server based on template file.
-        The file is a xml file create with New-TemplateFileServer.
+        Retrieve all duplicate files from a path.
+        Duplicate files return with additional information.
     .EXAMPLE
         Get-DedupFiles -Path C:\repo
     .EXAMPLE

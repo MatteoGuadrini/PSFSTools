@@ -33,7 +33,7 @@ Copyright = '(c) Matteo Guadrini. All rights reserved.'
 Description = 'Tools for File Server Role'
 
 # Minimum version of the PowerShell engine required by this module
-PowerShellVersion = '4.0'
+PowerShellVersion = '5.0'
 
 # Name of the PowerShell host required by this module
 # PowerShellHostName = ''
