@@ -94,6 +94,19 @@ Get-DedupFiles -Path C:\Temp -Recurse
 For more info, run:
 ```powershell
 Get-Help Get-DedupFiles -Full
+```
+
+### Show-LatestCreatedFile
+Show the latest files based on a date or size.
+The size of the files can be specified in bytes 1, 1MB, 1GB, 1TB, 1PB.
+```powershell
+Show-LatestCreatedFile -Path C:\Temp -Recurse -Size 50MB -CreationTime '05/29/2016'
+```
+
+For more info, run:
+```powershell
+Get-Help Show-LatestCreatedFile -Full
+```
 
 **A great thanks**.
 

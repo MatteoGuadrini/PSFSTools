@@ -4,6 +4,7 @@ New-Alias -Name "bckar" -Value Backup-ArchiveFiles -Option ReadOnly
 New-Alias -Name "ntemp" -Value New-TemplateFileServer -Option ReadOnly
 New-Alias -Name "wfs" -Value Write-FileServerFromTemplate -Option ReadOnly
 New-Alias -Name "gdf" -Value Get-DedupFiles -Option ReadOnly
+New-Alias -Name "slcf" -Value Show-LatestCreatedFile -Option ReadOnly
 
 function New-ProjectFolder () {
     <#
@@ -519,11 +520,11 @@ function Get-DedupFiles () {
         Retrieve all duplicate files from a path.
         Duplicate files return with additional information.
     .EXAMPLE
-        Get-DedupFiles -Path C:\repo
+        Get-DedupFiles -Path C:\Temp
     .EXAMPLE
-        Get-DedupFiles -Path C:\repo -Recurse
+        Get-DedupFiles -Path C:\Temp -Recurse
     .EXAMPLE
-        Get-DedupFiles -Path C:\repo -Recurse -Depth 5
+        Get-DedupFiles -Path C:\Temp -Recurse -Depth 5
     #>
     [CmdletBinding()]
     param (
@@ -567,4 +568,51 @@ function Get-DedupFiles () {
     }
     # Return duplicates
     return $duplicates
+}
+
+function Show-LatestCreatedFile () {
+    <#
+    .SYNOPSIS
+        Show the latest files based on a date or size.
+    .DESCRIPTION
+        Show the latest files based on a date or size.
+        The size of the files can be specified in bytes 1, 1MB, 1GB, 1TB, 1PB.
+    .EXAMPLE
+        Show-LatestCreatedFile -Path C:\Temp
+    .EXAMPLE
+        Show-LatestCreatedFile -Path C:\Temp -Recurse -Size 50MB
+    .EXAMPLE
+        Show-LatestCreatedFile -Path C:\Temp -Recurse -CreationTime '05/29/2016'
+    #>
+    [CmdletBinding()]
+    param ( 
+        [parameter(mandatory = $true)][string] $Path,
+        [int] $Depth,
+        [int] $Size = 1,
+        [datetime] $CreationTime,
+        [switch] $Recurse
+    )
+    # Splatting parameter
+    $HashArguments = @{
+        Path = $Path
+        File = $true
+        Recurse = $Recurse.IsPresent
+    }
+    # Get files
+    $files = Get-ChildItem @HashArguments | 
+    Where-Object {
+        if ($Size -and $CreationTime) { $_.Length -gt $Size -and $_.CreationTime -gt $CreationTime }
+        elseif ($Size) { $_.Length -gt $Size }
+        elseif ($CreationTime) { $_.CreationTime -gt $CreationTime }
+    }
+    # Order files and print
+    switch -Regex ([math]::truncate([math]::log($Size, 1024))) {
+        '^0' { $files | Sort-Object CreationTime -Descending | Select-Object FullName, CreationTime, @{Name="Size bytes"; Expression={ "{0:N0}" -f ($_.Length) } } }
+        '^1' { $files | Sort-Object CreationTime -Descending | Select-Object FullName, CreationTime, @{Name="Size KB"; Expression={ "{0:n2} KB" -f ($_.Length / 1KB) } } }
+        '^2' { $files | Sort-Object CreationTime -Descending | Select-Object FullName, CreationTime, @{Name="Size MB"; Expression={ "{0:n2} MB" -f ($_.Length / 1MB) } } }
+        '^3' { $files | Sort-Object CreationTime -Descending | Select-Object FullName, CreationTime, @{Name="Size GB"; Expression={ "{0:n2} GB" -f ($_.Length / 1GB) } } }
+        '^4' { $files | Sort-Object CreationTime -Descending | Select-Object FullName, CreationTime, @{Name="Size TB"; Expression={ "{0:n2} TB" -f ($_.Length / 1TB) } } }
+        '^5' { $files | Sort-Object CreationTime -Descending | Select-Object FullName, CreationTime, @{Name="Size PB"; Expression={ "{0:n2} PB" -f ($_.Length / 1PB) } } }
+        default { $files | Sort-Object CreationTime -Descending | Select-Object FullName, CreationTime, @{Name="Size KB"; Expression={ "{0:n2} KB" -f ($_.Length / 1KB) } } }
+    }
 }
