@@ -5,6 +5,7 @@ New-Alias -Name "ntemp" -Value New-TemplateFileServer -Option ReadOnly
 New-Alias -Name "wfs" -Value Write-FileServerFromTemplate -Option ReadOnly
 New-Alias -Name "gdf" -Value Get-DedupFiles -Option ReadOnly
 New-Alias -Name "slcf" -Value Show-LatestCreatedFile -Option ReadOnly
+New-Alias -Name "slwf" -Value Show-LatestWritedFile -Option ReadOnly
 
 function New-ProjectFolder () {
     <#
@@ -573,9 +574,9 @@ function Get-DedupFiles () {
 function Show-LatestCreatedFile () {
     <#
     .SYNOPSIS
-        Show the latest files based on a date or size.
+        Show the latest created files based on a date or size.
     .DESCRIPTION
-        Show the latest files based on a date or size.
+        Show the latest created files based on a date or size.
         The size of the files can be specified in bytes 1, 1MB, 1GB, 1TB, 1PB.
     .EXAMPLE
         Show-LatestCreatedFile -Path C:\Temp
@@ -614,5 +615,52 @@ function Show-LatestCreatedFile () {
         '^4' { $files | Sort-Object CreationTime -Descending | Select-Object FullName, CreationTime, @{Name="Size TB"; Expression={ "{0:n2} TB" -f ($_.Length / 1TB) } } }
         '^5' { $files | Sort-Object CreationTime -Descending | Select-Object FullName, CreationTime, @{Name="Size PB"; Expression={ "{0:n2} PB" -f ($_.Length / 1PB) } } }
         default { $files | Sort-Object CreationTime -Descending | Select-Object FullName, CreationTime, @{Name="Size KB"; Expression={ "{0:n2} KB" -f ($_.Length / 1KB) } } }
+    }
+}
+
+function Show-LatestWritedFile () {
+    <#
+    .SYNOPSIS
+        Show the latest modified files based on a date or size.
+    .DESCRIPTION
+        Show the latest modified files based on a date or size.
+        The size of the files can be specified in bytes 1, 1MB, 1GB, 1TB, 1PB.
+    .EXAMPLE
+        Show-LatestWritedFile -Path C:\Temp
+    .EXAMPLE
+        Show-LatestWritedFile -Path C:\Temp -Recurse -Size 50MB
+    .EXAMPLE
+        Show-LatestWritedFile -Path C:\Temp -Recurse -LastWriteTime '05/29/2016'
+    #>
+    [CmdletBinding()]
+    param ( 
+        [parameter(mandatory = $true)][string] $Path,
+        [int] $Depth,
+        [int] $Size = 1,
+        [datetime] $LastWriteTime,
+        [switch] $Recurse
+    )
+    # Splatting parameter
+    $HashArguments = @{
+        Path = $Path
+        File = $true
+        Recurse = $Recurse.IsPresent
+    }
+    # Get files
+    $files = Get-ChildItem @HashArguments | 
+    Where-Object {
+        if ($Size -and $LastWriteTime) { $_.Length -gt $Size -and $_.LastWriteTime -gt $LastWriteTime }
+        elseif ($Size) { $_.Length -gt $Size }
+        elseif ($LastWriteTime) { $_.LastWriteTime -gt $LastWriteTime }
+    }
+    # Order files and print
+    switch -Regex ([math]::truncate([math]::log($Size, 1024))) {
+        '^0' { $files | Sort-Object LastWriteTime -Descending | Select-Object FullName, LastWriteTime, @{Name="Size bytes"; Expression={ "{0:N0}" -f ($_.Length) } } }
+        '^1' { $files | Sort-Object LastWriteTime -Descending | Select-Object FullName, LastWriteTime, @{Name="Size KB"; Expression={ "{0:n2} KB" -f ($_.Length / 1KB) } } }
+        '^2' { $files | Sort-Object LastWriteTime -Descending | Select-Object FullName, LastWriteTime, @{Name="Size MB"; Expression={ "{0:n2} MB" -f ($_.Length / 1MB) } } }
+        '^3' { $files | Sort-Object LastWriteTime -Descending | Select-Object FullName, LastWriteTime, @{Name="Size GB"; Expression={ "{0:n2} GB" -f ($_.Length / 1GB) } } }
+        '^4' { $files | Sort-Object LastWriteTime -Descending | Select-Object FullName, LastWriteTime, @{Name="Size TB"; Expression={ "{0:n2} TB" -f ($_.Length / 1TB) } } }
+        '^5' { $files | Sort-Object LastWriteTime -Descending | Select-Object FullName, LastWriteTime, @{Name="Size PB"; Expression={ "{0:n2} PB" -f ($_.Length / 1PB) } } }
+        default { $files | Sort-Object LastWriteTime -Descending | Select-Object FullName, LastWriteTime, @{Name="Size KB"; Expression={ "{0:n2} KB" -f ($_.Length / 1KB) } } }
     }
 }

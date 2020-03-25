@@ -81,6 +81,8 @@ Get-Help New-TemplateFileServer -Full
 Get-Help Write-FileServerFromTemplate -Full
 ```
 
+## Report cmdlet
+These cmdlets are used to run reports
 ### Get-DedupFiles
 To recover files that are duplicated in a certain path
 ```powershell
@@ -97,7 +99,7 @@ Get-Help Get-DedupFiles -Full
 ```
 
 ### Show-LatestCreatedFile
-Show the latest files based on a date or size.
+Show the latest created files based on a date or size.
 The size of the files can be specified in bytes 1, 1MB, 1GB, 1TB, 1PB.
 ```powershell
 Show-LatestCreatedFile -Path C:\Temp -Recurse -Size 50MB -CreationTime '05/29/2016'
@@ -106,6 +108,18 @@ Show-LatestCreatedFile -Path C:\Temp -Recurse -Size 50MB -CreationTime '05/29/20
 For more info, run:
 ```powershell
 Get-Help Show-LatestCreatedFile -Full
+```
+
+### Show-LatestWritedFile
+Show the latest modified files based on a date or size.
+The size of the files can be specified in bytes 1, 1MB, 1GB, 1TB, 1PB.
+```powershell
+Show-LatestWritedFile -Path C:\Temp -Recurse -Size 50MB -CreationTime '05/29/2016'
+```
+
+For more info, run:
+```powershell
+Get-Help Show-LatestWritedFile -Full
 ```
 
 **A great thanks**.
