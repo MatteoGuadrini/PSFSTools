@@ -6,6 +6,7 @@ New-Alias -Name "wfs" -Value Write-FileServerFromTemplate -Option ReadOnly
 New-Alias -Name "gdf" -Value Get-DedupFiles -Option ReadOnly
 New-Alias -Name "slcf" -Value Show-LatestCreatedFile -Option ReadOnly
 New-Alias -Name "slwf" -Value Show-LatestWritedFile -Option ReadOnly
+New-Alias -Name "slaf" -Value Show-LatestAccessedFile -Option ReadOnly
 
 function New-ProjectFolder () {
     <#
@@ -662,5 +663,52 @@ function Show-LatestWritedFile () {
         '^4' { $files | Sort-Object LastWriteTime -Descending | Select-Object FullName, LastWriteTime, @{Name="Size TB"; Expression={ "{0:n2} TB" -f ($_.Length / 1TB) } } }
         '^5' { $files | Sort-Object LastWriteTime -Descending | Select-Object FullName, LastWriteTime, @{Name="Size PB"; Expression={ "{0:n2} PB" -f ($_.Length / 1PB) } } }
         default { $files | Sort-Object LastWriteTime -Descending | Select-Object FullName, LastWriteTime, @{Name="Size KB"; Expression={ "{0:n2} KB" -f ($_.Length / 1KB) } } }
+    }
+}
+
+function Show-LatestAccessedFile () {
+    <#
+    .SYNOPSIS
+        Show the latest accessed files based on a date or size.
+    .DESCRIPTION
+        Show the latest accessed files based on a date or size.
+        The size of the files can be specified in bytes 1, 1MB, 1GB, 1TB, 1PB.
+    .EXAMPLE
+        Show-LatestAccessedFile -Path C:\Temp
+    .EXAMPLE
+        Show-LatestAccessedFile -Path C:\Temp -Recurse -Size 50MB
+    .EXAMPLE
+        Show-LatestAccessedFile -Path C:\Temp -Recurse -LastAccessTime '05/29/2016'
+    #>
+    [CmdletBinding()]
+    param ( 
+        [parameter(mandatory = $true)][string] $Path,
+        [int] $Depth,
+        [int] $Size = 1,
+        [datetime] $LastAccessTime,
+        [switch] $Recurse
+    )
+    # Splatting parameter
+    $HashArguments = @{
+        Path = $Path
+        File = $true
+        Recurse = $Recurse.IsPresent
+    }
+    # Get files
+    $files = Get-ChildItem @HashArguments | 
+    Where-Object {
+        if ($Size -and $LastAccessTime) { $_.Length -gt $Size -and $_.LastAccessTime -gt $LastAccessTime }
+        elseif ($Size) { $_.Length -gt $Size }
+        elseif ($LastAccessTime) { $_.LastAccessTime -gt $LastAccessTime }
+    }
+    # Order files and print
+    switch -Regex ([math]::truncate([math]::log($Size, 1024))) {
+        '^0' { $files | Sort-Object LastAccessTime -Descending | Select-Object FullName, LastAccessTime, @{Name="Size bytes"; Expression={ "{0:N0}" -f ($_.Length) } } }
+        '^1' { $files | Sort-Object LastAccessTime -Descending | Select-Object FullName, LastAccessTime, @{Name="Size KB"; Expression={ "{0:n2} KB" -f ($_.Length / 1KB) } } }
+        '^2' { $files | Sort-Object LastAccessTime -Descending | Select-Object FullName, LastAccessTime, @{Name="Size MB"; Expression={ "{0:n2} MB" -f ($_.Length / 1MB) } } }
+        '^3' { $files | Sort-Object LastAccessTime -Descending | Select-Object FullName, LastAccessTime, @{Name="Size GB"; Expression={ "{0:n2} GB" -f ($_.Length / 1GB) } } }
+        '^4' { $files | Sort-Object LastAccessTime -Descending | Select-Object FullName, LastAccessTime, @{Name="Size TB"; Expression={ "{0:n2} TB" -f ($_.Length / 1TB) } } }
+        '^5' { $files | Sort-Object LastAccessTime -Descending | Select-Object FullName, LastAccessTime, @{Name="Size PB"; Expression={ "{0:n2} PB" -f ($_.Length / 1PB) } } }
+        default { $files | Sort-Object LastAccessTime -Descending | Select-Object FullName, LastAccessTime, @{Name="Size KB"; Expression={ "{0:n2} KB" -f ($_.Length / 1KB) } } }
     }
 }

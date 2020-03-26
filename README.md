@@ -122,6 +122,18 @@ For more info, run:
 Get-Help Show-LatestWritedFile -Full
 ```
 
+### Show-LatestAccessedFile
+Show the latest accessed files based on a date or size.
+The size of the files can be specified in bytes 1, 1MB, 1GB, 1TB, 1PB.
+```powershell
+Show-LatestAccessedFile -Path C:\Temp -Recurse -Size 50MB -CreationTime '05/29/2016'
+```
+
+For more info, run:
+```powershell
+Get-Help Show-LatestAccessedFile -Full
+```
+
 **A great thanks**.
 
 For donations, press this
