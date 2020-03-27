@@ -546,6 +546,7 @@ function Get-DedupFiles () {
     if ($Depth) { $HashArguments.Add("Depth", $Depth) }
     # Iterate each files traverse root path
     foreach ($file in (Get-ChildItem @HashArguments)) {
+        Write-Verbose -Message "File: $($file.FullName)"
         # Prepare PSCustomObject
         $FileHash = [PSCustomObject]@{
             Name = $file.Name
@@ -560,6 +561,7 @@ function Get-DedupFiles () {
         # Does it have a duplicate?
         foreach ($file in $files) {
             if ($FileHash.Hash -eq $file.Hash) {
+                Write-Verbose -Message "Duplicate file: $($file.FullName)"
                 $FileHash.DedupFile = $file.Path
                 $FileHash.DedupHash = $file.Hash
                 $duplicates += $FileHash
@@ -600,6 +602,7 @@ function Show-LatestCreatedFile () {
         File = $true
         Recurse = $Recurse.IsPresent
     }
+    if ($Depth) { $HashArguments.Add("Depth", $Depth) }
     # Get files
     $files = Get-ChildItem @HashArguments | 
     Where-Object {
@@ -647,6 +650,7 @@ function Show-LatestWritedFile () {
         File = $true
         Recurse = $Recurse.IsPresent
     }
+    if ($Depth) { $HashArguments.Add("Depth", $Depth) }
     # Get files
     $files = Get-ChildItem @HashArguments | 
     Where-Object {
@@ -694,6 +698,7 @@ function Show-LatestAccessedFile () {
         File = $true
         Recurse = $Recurse.IsPresent
     }
+    if ($Depth) { $HashArguments.Add("Depth", $Depth) }
     # Get files
     $files = Get-ChildItem @HashArguments | 
     Where-Object {
