@@ -5,13 +5,20 @@ SHORT DESCRIPTION
 LONG DESCRIPTION
 	Various task on a file server, require execution complexity; 
 	how and when to archive, create folders assigned to certain groups or delete files older than one month or delete folders that are no longer used.
+	This module also provides cmdlets for monitoring and reporting on a file server.
 	Tools:
 		- New-ProjectFolder
 		- Remove-OlderThan
 		- Backup-ArchiveFiles
 		- New-TemplateFileServer
 		- Write-FileServerFromTemplate
+		- Get-DedupFiles
+		- Show-LatestCreatedFile
+		- Show-LatestWritedFile
+		- Show-LatestAccessedFile
+		- Show-FolderLength
 SEE ALSO
+	Measure-Object
 	Get-ChildItem
 	Get-Item
 	Get-Acl

@@ -7,6 +7,7 @@ New-Alias -Name "gdf" -Value Get-DedupFiles -Option ReadOnly
 New-Alias -Name "slcf" -Value Show-LatestCreatedFile -Option ReadOnly
 New-Alias -Name "slwf" -Value Show-LatestWritedFile -Option ReadOnly
 New-Alias -Name "slaf" -Value Show-LatestAccessedFile -Option ReadOnly
+New-Alias -Name "du" -Value Show-FolderLength -Option ReadOnly
 
 function New-ProjectFolder () {
     <#
@@ -715,5 +716,44 @@ function Show-LatestAccessedFile () {
         '^4' { $files | Sort-Object LastAccessTime -Descending | Select-Object FullName, LastAccessTime, @{Name="Size TB"; Expression={ "{0:n2} TB" -f ($_.Length / 1TB) } } }
         '^5' { $files | Sort-Object LastAccessTime -Descending | Select-Object FullName, LastAccessTime, @{Name="Size PB"; Expression={ "{0:n2} PB" -f ($_.Length / 1PB) } } }
         default { $files | Sort-Object LastAccessTime -Descending | Select-Object FullName, LastAccessTime, @{Name="Size KB"; Expression={ "{0:n2} KB" -f ($_.Length / 1KB) } } }
+    }
+}
+
+function Show-FolderLength () {
+    <#
+    .SYNOPSIS
+        Show to estimate file space usage.
+    .DESCRIPTION
+        Show to estimate file space usage.
+        Track the directories which are consuming excessive amount of space on a drive.
+    .EXAMPLE
+        Show-FolderLength -Path C:\Temp
+    #>
+    [CmdletBinding()]
+    param ( 
+        [parameter(mandatory = $true)][string] $Path
+    )
+    # Splatting parameter
+    $HashArguments = @{
+        File = $true
+        Recurse = $true
+    }
+    # Get files
+    $files = Get-ChildItem -Path $Path -Directory |
+    ForEach-Object {
+        $FullName = $_.FullName
+        Get-ChildItem @HashArguments $_.FullName | Measure-Object -Property Length -Sum | Select-Object @{Name="FullName"; Expression={$FullName}}, Sum
+    }
+    # Order files and print
+    foreach ($file in $files) {
+        switch -Regex ([math]::truncate([math]::log($file.Sum, 1024))) {
+            '^0' { $file | Select-Object FullName, @{Name="Size"; Expression={ "{0:N0}" -f ($_.Sum) } } }
+            '^1' { $file | Select-Object FullName, @{Name="Size"; Expression={ "{0:n2} KB" -f ($_.Sum / 1KB) } } }
+            '^2' { $file | Select-Object FullName, @{Name="Size"; Expression={ "{0:n2} MB" -f ($_.Sum / 1MB) } } }
+            '^3' { $file | Select-Object FullName, @{Name="Size"; Expression={ "{0:n2} GB" -f ($_.Sum / 1GB) } } }
+            '^4' { $file | Select-Object FullName, @{Name="Size"; Expression={ "{0:n2} TB" -f ($_.Sum / 1TB) } } }
+            '^5' { $file | Select-Object FullName, @{Name="Size"; Expression={ "{0:n2} PB" -f ($_.Sum / 1PB) } } }
+            default { $file | Select-Object FullName, @{Name="Size"; Expression={ "{0:n2} KB" -f ($_.Sum / 1KB) } } }
+        }
     }
 }

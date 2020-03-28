@@ -24,6 +24,11 @@ This module, with
 * Write-FileServerFromTemplate
 * Get-DedupFiles
 
+For more module info, run:
+```powershell
+Get-Help about_psfstools
+```
+
 ### New-ProjectFolder
 Creates a project folder and assign ACL with three Active Directory groups: Owner, Writer, Reader. For example:
 ```powershell
@@ -132,6 +137,18 @@ Show-LatestAccessedFile -Path C:\Temp -Recurse -Size 50MB -CreationTime '05/29/2
 For more info, run:
 ```powershell
 Get-Help Show-LatestAccessedFile -Full
+```
+
+### Show-FolderLength
+Show to estimate file space usage.
+Track the directories which are consuming excessive amount of space on a drive.
+```powershell
+Show-FolderLength -Path C:\Temp
+```
+
+For more info, run:
+```powershell
+Get-Help Show-FolderLength -Full
 ```
 
 **A great thanks**.
