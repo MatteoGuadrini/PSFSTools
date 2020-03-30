@@ -291,9 +291,9 @@ function Backup-ArchiveFiles () {
                 Get-ChildItem -Path $folder.FullName -File | Where-Object { $_.FullName -notmatch $Pattern } | Move-Item -Destination "$Destination\" -Force -Confirm:$false
                 if ($Log.IsPresent) {
                     if (Test-Path $Destination) {
-                        Write-EventLog -LogName "Application" -Source "Archive" -EntryType "Information" -EventID 1 -Category 0 -Message "Archived file $($folder.FullName) to $Destination successfully"
+                        Write-EventLog -LogName "Application" -Source "Archive" -EntryType "Information" -EventID 1 -Category 0 -Message "Archived folder $($folder.FullName) to $Destination successfully"
                     } else {
-                        Write-EventLog -LogName "Application" -Source "Archive" -EntryType "Error" -EventID 1 -Category 0 -Message "Archived file $($folder.FullName) failed to $Destination"
+                        Write-EventLog -LogName "Application" -Source "Archive" -EntryType "Error" -EventID 1 -Category 0 -Message "Archived folder $($folder.FullName) failed to $Destination"
                     }
                 }
             }
@@ -731,7 +731,8 @@ function Show-FolderLength () {
     #>
     [CmdletBinding()]
     param ( 
-        [parameter(mandatory = $true)][string] $Path
+        [parameter(mandatory = $true)][string] $Path,
+        [ValidateSet("KB", "MB", "GB", "TB", "PB")] $OutputSize
     )
     # Splatting parameter
     $HashArguments = @{
@@ -746,14 +747,18 @@ function Show-FolderLength () {
     }
     # Order files and print
     foreach ($file in $files) {
-        switch -Regex ([math]::truncate([math]::log($file.Sum, 1024))) {
-            '^0' { $file | Select-Object FullName, @{Name="Size"; Expression={ "{0:N0}" -f ($_.Sum) } } }
-            '^1' { $file | Select-Object FullName, @{Name="Size"; Expression={ "{0:n2} KB" -f ($_.Sum / 1KB) } } }
-            '^2' { $file | Select-Object FullName, @{Name="Size"; Expression={ "{0:n2} MB" -f ($_.Sum / 1MB) } } }
-            '^3' { $file | Select-Object FullName, @{Name="Size"; Expression={ "{0:n2} GB" -f ($_.Sum / 1GB) } } }
-            '^4' { $file | Select-Object FullName, @{Name="Size"; Expression={ "{0:n2} TB" -f ($_.Sum / 1TB) } } }
-            '^5' { $file | Select-Object FullName, @{Name="Size"; Expression={ "{0:n2} PB" -f ($_.Sum / 1PB) } } }
-            default { $file | Select-Object FullName, @{Name="Size"; Expression={ "{0:n2} KB" -f ($_.Sum / 1KB) } } }
+        if ($OutputSize) {
+            $file | Select-Object FullName, @{Name="Size"; Expression={ "{0:n2} $OutputSize" -f ($_.Sum / "1$OutputSize") } }
+        } else {
+            switch -Regex ([math]::truncate([math]::log($file.Sum, 1024))) {
+                '^0' { $file | Select-Object FullName, @{Name="Size"; Expression={ "{0:N0}" -f ($_.Sum) } } }
+                '^1' { $file | Select-Object FullName, @{Name="Size"; Expression={ "{0:n2} KB" -f ($_.Sum / 1KB) } } }
+                '^2' { $file | Select-Object FullName, @{Name="Size"; Expression={ "{0:n2} MB" -f ($_.Sum / 1MB) } } }
+                '^3' { $file | Select-Object FullName, @{Name="Size"; Expression={ "{0:n2} GB" -f ($_.Sum / 1GB) } } }
+                '^4' { $file | Select-Object FullName, @{Name="Size"; Expression={ "{0:n2} TB" -f ($_.Sum / 1TB) } } }
+                '^5' { $file | Select-Object FullName, @{Name="Size"; Expression={ "{0:n2} PB" -f ($_.Sum / 1PB) } } }
+                default { $file | Select-Object FullName, @{Name="Size"; Expression={ "{0:n2} KB" -f ($_.Sum / 1KB) } } }
+            }
         }
     }
 }
