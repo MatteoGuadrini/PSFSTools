@@ -534,6 +534,7 @@ function Get-DedupFiles () {
         [parameter(mandatory = $true)][string] $Path,
         [int] $Depth,
         [array] $Exclude,
+        [array] $Include,
         [switch] $Recurse
     )
     # Init result variables
@@ -548,6 +549,7 @@ function Get-DedupFiles () {
     # Other possible parameter
     if ($Depth) { $HashArguments.Add("Depth", $Depth) }
     if ($Exclude) { $HashArguments.Add("Exclude", $Exclude) }
+    if ($Include) { $HashArguments.Add("Include", $Include) }
     # Iterate each files traverse root path
     foreach ($file in (Get-ChildItem @HashArguments)) {
         Write-Verbose -Message "File: $($file.FullName)"
