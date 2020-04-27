@@ -704,6 +704,8 @@ function Show-LatestAccessedFile () {
         [int] $Depth,
         [int] $Size = 1,
         [datetime] $LastAccessTime,
+        [array] $Exclude,
+        [array] $Include,
         [switch] $Recurse
     )
     # Splatting parameter
@@ -713,6 +715,8 @@ function Show-LatestAccessedFile () {
         Recurse = $Recurse.IsPresent
     }
     if ($Depth) { $HashArguments.Add("Depth", $Depth) }
+    if ($Exclude) { $HashArguments.Add("Exclude", $Exclude) }
+    if ($Include) { $HashArguments.Add("Include", $Include) }  
     # Get files
     $files = Get-ChildItem @HashArguments | 
     Where-Object {
