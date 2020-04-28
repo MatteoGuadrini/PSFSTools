@@ -23,6 +23,11 @@ This module, with
 * New-TemplateFileServer
 * Write-FileServerFromTemplate
 * Get-DedupFiles
+* Show-LatestCreatedFile
+* Show-LatestWritedFile
+* Show-LatestAccessedFile
+* Show-FolderLength
+* Backup-ACLFolders
 
 For more module info, run:
 ```powershell
@@ -149,6 +154,19 @@ Show-FolderLength -Path C:\Temp
 For more info, run:
 ```powershell
 Get-Help Show-FolderLength -Full
+```
+
+### Backup-ACLFolders
+Backup ACL traverse folders on specific path.
+The backup csv header is:
+"Path","FileSystemRights","AccessControlType","IdentityReference","IsInherited","InheritanceFlags","PropagationFlags".
+```powershell
+Backup-ACLFolders -Path C:\Temp -OutputCSV C:\Temp2\acl_temp.csv
+```
+
+For more info, run:
+```powershell
+Get-Help Backup-ACLFolders -Full
 ```
 
 **A great thanks**.

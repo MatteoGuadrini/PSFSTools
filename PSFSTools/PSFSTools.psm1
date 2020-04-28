@@ -8,6 +8,7 @@ New-Alias -Name "slcf" -Value Show-LatestCreatedFile -Option ReadOnly
 New-Alias -Name "slwf" -Value Show-LatestWritedFile -Option ReadOnly
 New-Alias -Name "slaf" -Value Show-LatestAccessedFile -Option ReadOnly
 New-Alias -Name "du" -Value Show-FolderLength -Option ReadOnly
+New-Alias -Name "bckacl" -Value Backup-ACLFolders -Option ReadOnly
 
 function New-ProjectFolder () {
     <#
@@ -778,4 +779,25 @@ function Show-FolderLength () {
             }
         }
     }
+}
+
+
+function Backup-ACLFolders () {
+    <#
+    .SYNOPSIS
+        Backup ACL traverse folders to specific path on csv file
+    .DESCRIPTION
+        Backup ACL traverse folders on specific path.
+        The backup csv header is:
+        "Path","FileSystemRights","AccessControlType","IdentityReference","IsInherited","InheritanceFlags","PropagationFlags"
+    .EXAMPLE
+        Backup-ACLFolders -Path C:\Temp -OutputCSV C:\Temp2\acl_temp.csv
+    #>
+    [CmdletBinding()]
+    param ( 
+        [parameter(mandatory = $true)][string] $Path,
+        [parameter(mandatory = $true)][Alias("CSV")][string] $OutputCSV
+    )
+    # Backu ACL
+    Get-Childitem -Path $Path -Recurse | Where-Object {$_.PSIsContainer} | Get-ACL | Select-Object Path -ExpandProperty Access | Export-CSV $OutputCSV -NoTypeInformation
 }
