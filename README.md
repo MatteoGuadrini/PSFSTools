@@ -28,6 +28,7 @@ This module, with
 * Show-LatestAccessedFile
 * Show-FolderLength
 * Backup-ACLFolders
+* Restore-ACLFolders
 
 For more module info, run:
 ```powershell
@@ -156,10 +157,12 @@ For more info, run:
 Get-Help Show-FolderLength -Full
 ```
 
+## Backup/Restore ACL cmdlet
+These cmdlets are used to backup and restore ACL on folder structure
 ### Backup-ACLFolders
 Backup ACL traverse folders on specific path.
 The backup csv header is:
-"Path","FileSystemRights","AccessControlType","IdentityReference","IsInherited","InheritanceFlags","PropagationFlags".
+*"Path","FileSystemRights","AccessControlType","IdentityReference","IsInherited","InheritanceFlags","PropagationFlags"*.
 ```powershell
 Backup-ACLFolders -Path C:\Temp -OutputCSV C:\Temp2\acl_temp.csv
 ```
@@ -167,6 +170,21 @@ Backup-ACLFolders -Path C:\Temp -OutputCSV C:\Temp2\acl_temp.csv
 For more info, run:
 ```powershell
 Get-Help Backup-ACLFolders -Full
+```
+
+### Restore-ACLFolders
+Restore ACL traverse folders on specific path.
+The backup csv header is:
+*"Path","FileSystemRights","AccessControlType","IdentityReference","IsInherited","InheritanceFlags","PropagationFlags"*.
+> ATTENTION: For this operation, need administrative permissions
+
+```powershell
+Restore-ACLFolders -InputCSV C:\Temp2\acl_temp.csv
+```
+
+For more info, run:
+```powershell
+Get-Help Restore-ACLFolders -Full
 ```
 
 **A great thanks**.

@@ -9,6 +9,7 @@ New-Alias -Name "slwf" -Value Show-LatestWritedFile -Option ReadOnly
 New-Alias -Name "slaf" -Value Show-LatestAccessedFile -Option ReadOnly
 New-Alias -Name "du" -Value Show-FolderLength -Option ReadOnly
 New-Alias -Name "bckacl" -Value Backup-ACLFolders -Option ReadOnly
+New-Alias -Name "resacl" -Value Restore-ACLFolders -Option ReadOnly
 
 function New-ProjectFolder () {
     <#
@@ -800,4 +801,42 @@ function Backup-ACLFolders () {
     )
     # Backu ACL
     Get-Childitem -Path $Path -Recurse | Where-Object {$_.PSIsContainer} | Get-ACL | Select-Object Path -ExpandProperty Access | Export-CSV $OutputCSV -NoTypeInformation
+}
+
+function Restore-ACLFolders () {
+    <#
+    .SYNOPSIS
+        Restore ACL traverse folders to specific path from csv file
+    .DESCRIPTION
+        Restore ACL traverse folders on specific path.
+        The backup csv header is:
+        "Path","FileSystemRights","AccessControlType","IdentityReference","IsInherited","InheritanceFlags","PropagationFlags"
+        ATTENTION: For this operation, need administrative permissions
+    .EXAMPLE
+        Restore-ACLFolders -InputCSV C:\Temp2\acl_temp.csv
+    #>
+    [CmdletBinding()]
+    param (
+        [parameter(mandatory = $true)][Alias("CSV")][string] $InputCSV
+    )
+
+    $ACLs = Import-Csv -Path $InputCSV
+    foreach ( $ACL in $ACLs ) {
+        # Get absulute parent path folder
+        $Path = (Get-Item -Path $ACL.Path)
+        if ($Path) {
+            # Get ACL of folder
+            $DACL = Get-Acl $Path
+            # Set default initial value
+            $isProtected = $false
+            $preserveInheritance = $true
+            # Set restored ACL
+            $DACL.SetAccessRuleProtection($isProtected, $preserveInheritance)
+            $Permission = $ACL.IdentityReference, $ACL.FileSystemRights, $ACL.InheritanceFlags, $ACL.PropagationFlags, $ACL.AccessControlType
+            $AccessRule = New-Object System.Security.AccessControl.FileSystemAccessRule($Permission)
+            $DACL.SetAccessRule($AccessRule)
+            # Restore ACL
+            $DACL | Set-Acl $Path
+        }
+    }
 }
