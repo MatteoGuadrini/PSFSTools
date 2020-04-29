@@ -187,6 +187,21 @@ For more info, run:
 Get-Help Restore-ACLFolders -Full
 ```
 
+## Share cmdlet
+These cmdlets are used to manage file server share
+### Suspend-FSShare
+Temporary suspension of a samba share. Permission will be maintained at the end of the suspension.
+> ATTENTION: For this operation, need administrative permissions
+```powershell
+Suspend-FSShare -Share Temp
+```
+
+For more info, run:
+```powershell
+Get-Help Suspend-FSShare -Full
+```
+
+
 **A great thanks**.
 
 For donations, press this

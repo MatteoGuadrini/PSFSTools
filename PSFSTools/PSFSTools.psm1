@@ -10,6 +10,7 @@ New-Alias -Name "slaf" -Value Show-LatestAccessedFile -Option ReadOnly
 New-Alias -Name "du" -Value Show-FolderLength -Option ReadOnly
 New-Alias -Name "bckacl" -Value Backup-ACLFolders -Option ReadOnly
 New-Alias -Name "resacl" -Value Restore-ACLFolders -Option ReadOnly
+New-Alias -Name "shs" -Value Suspend-FSShare -Option ReadOnly
 
 function New-ProjectFolder () {
     <#
@@ -782,7 +783,6 @@ function Show-FolderLength () {
     }
 }
 
-
 function Backup-ACLFolders () {
     <#
     .SYNOPSIS
@@ -838,5 +838,36 @@ function Restore-ACLFolders () {
             # Restore ACL
             $DACL | Set-Acl $Path
         }
+    }
+}
+
+function Suspend-FSShare () {
+    <#
+    .SYNOPSIS
+        Suspend a specific SMB share
+    .DESCRIPTION
+        Temporary suspension of a samba share. Permission will be maintained at the end of the suspension.
+        ATTENTION: For this operation, need administrative permissions
+    .EXAMPLE
+        Suspend-FSShare -Share Temp
+    #>
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
+    param ( 
+        [parameter(mandatory = $true)][string] $Share
+    )
+    # Get samba share
+    $ShareName = Get-SmbShare -Name $Share
+    # Revoke all permission to samba share
+    $SharePermission = Get-SmbShareAccess -Name $Share
+    # Suspend access to everyone
+    Write-Verbose -Message "Suspend samba share Name: $($ShareName.Name) Path: $($ShareName.Path)"
+    Revoke-SmbShareAccess -Name $Share -AccountName $SharePermission.AccountName -Force | Out-Null
+    Write-Host "Share has been suspended: $($ShareName.Name)"
+    if ($PSCmdlet.ShouldProcess("Do you wish to resume samba share $($ShareName.Name)", "Resume samba share?")) {
+        Write-Verbose -Message "Resume samba share Name: $($ShareName.Name) Path: $($ShareName.Path)"
+        foreach ($perm in $SharePermission) {
+            Grant-SmbShareAccess -Name $Share -AccountName $perm.AccountName -AccessRight $perm.AccessRight -Force | Out-Null
+        }
+        Write-Host "Share has been resumed: $($ShareName.Name)"
     }
 }

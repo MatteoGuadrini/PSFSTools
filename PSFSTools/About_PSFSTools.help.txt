@@ -19,11 +19,13 @@ LONG DESCRIPTION
 		- Show-FolderLength
 		- Backup-ACLFolders
 		- Restore-ACLFolders
+		- Suspend-FSShare
 SEE ALSO
 	Measure-Object
 	Get-ChildItem
 	Get-Item
 	Get-Acl
 	Set-Acl
+	Get-SmbShare
 LINK
     https://matteoguadrini.github.io/PSFSTools/
