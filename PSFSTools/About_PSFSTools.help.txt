@@ -17,6 +17,8 @@ LONG DESCRIPTION
 		- Show-LatestWritedFile
 		- Show-LatestAccessedFile
 		- Show-FolderLength
+		- Backup-ACLFolders
+		- Restore-ACLFolders
 SEE ALSO
 	Measure-Object
 	Get-ChildItem
