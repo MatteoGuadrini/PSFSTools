@@ -218,19 +218,22 @@ function Remove-OlderThan () {
     param (
         [parameter(mandatory = $true)][ValidateNotNull()][string]$Path,
         $Days = 7,
+        [parameter(mandatory = $false)][switch]$LastWriteTime,
         [parameter(mandatory = $false)][switch]$Recurse
     )
 
     $Days = (Get-Date).AddDays(-$Days)
 
+    if ($LastWriteTime.IsPresent) { $attr = 'LastWriteTime' } else { $attr = 'CreationTime' }
+
     if ($Recurse.IsPresent) {
         Write-Verbose -Message "Delete files older than $Days, recursively in all the folders"
         # Delete files older than the $Days.
-        Get-ChildItem -Path $Path -Recurse -Force | Where-Object { !$_.PSIsContainer -and $_.CreationTime -lt $Days } | Remove-Item -Force -Recurse -Confirm:$false
+        Get-ChildItem -Path $Path -Recurse -Force | Where-Object { !$_.PSIsContainer -and $_."$attr" -lt $Days } | Remove-Item -Force -Recurse -Confirm:$false
     } else {
         # Delete files older than the $Days.
         Write-Verbose -Message "Delete files older than $Days"
-        Get-ChildItem -Path $Path -Force | Where-Object { !$_.PSIsContainer -and $_.CreationTime -lt $Days } | Remove-Item -Force -Confirm:$false
+        Get-ChildItem -Path $Path -Force | Where-Object { !$_.PSIsContainer -and $_."$attr" -lt $Days } | Remove-Item -Force -Confirm:$false
     }
     # Delete any empty directories left behind after deleting the old files.
     Write-Verbose -Message "Delete any empty directories left behind after deleting the old files recursively in all the folders"
