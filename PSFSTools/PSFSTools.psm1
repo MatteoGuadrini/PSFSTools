@@ -219,12 +219,15 @@ function Remove-OlderThan () {
         [parameter(mandatory = $true)][ValidateNotNull()][string]$Path,
         $Days = 7,
         [parameter(mandatory = $false)][switch]$LastWriteTime,
+        [parameter(mandatory = $false)][switch]$LastAccessTime,
         [parameter(mandatory = $false)][switch]$Recurse
     )
 
     $Days = (Get-Date).AddDays(-$Days)
 
-    if ($LastWriteTime.IsPresent) { $attr = 'LastWriteTime' } else { $attr = 'CreationTime' }
+    if ($LastWriteTime.IsPresent) { $attr = 'LastWriteTime' } 
+    elseif ($LastAccessTime.IsPresent) { $attr = 'LastAccessTime' }
+    else { $attr = 'CreationTime' }
 
     if ($Recurse.IsPresent) {
         Write-Verbose -Message "Delete files older than $Days, recursively in all the folders"
